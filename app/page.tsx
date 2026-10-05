@@ -1,105 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import {
+  ArrowRight, ArrowUpRight, BrainCircuit, Blocks, Compass, Eye, Focus, Globe, Handshake,
+  Languages, Mail, Moon, Palette, Rocket, Search, Share2, Smartphone, Sparkles, Sun,
+} from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
+import Background from "./components/Background";
+import CodeWindow from "./components/CodeWindow";
+import Counter from "./components/Counter";
+import Reveal from "./components/Reveal";
+import SpotlightCard from "./components/SpotlightCard";
+import { CONTACT_EMAIL, content, type Lang } from "./content";
 
-const CONTACT_EMAIL = "hello@mahsatech.com"; // TODO: replace with your real email
-
-type Lang = "en" | "fa";
 type Theme = "dark" | "light";
 
-const t = {
-  en: {
-    services: "Services", team: "Team", contact: "Contact",
-    badge: "Available for new projects",
-    h1a: "We build websites that ", h1b: "get results.",
-    lead: "MahsaTech is a small team of two developers. Direct communication, fast delivery, no agency overhead.",
-    start: "Start a project", what: "What we do",
-    servicesTitle: "Our Services",
-    servicesSub: "From idea to launch, we're with you every step.",
-    items: [
-      { icon: "🌐", title: "Web Development", text: "Design and development of modern websites with cutting-edge technologies.", tags: ["React & Next.js", "TypeScript", "Responsive Design", "SEO Optimization"] },
-      { icon: "📱", title: "Mobile Apps", text: "Native and cross-platform mobile applications.", tags: ["React Native", "Flutter", "iOS & Android", "PWA"] },
-      { icon: "⛓️", title: "Blockchain", text: "Smart contracts and decentralized platforms.", tags: ["Solidity", "Web3", "Smart Contracts", "DApps"] },
-      { icon: "🤖", title: "AI Solutions", text: "Practical AI and machine learning solutions for your product.", tags: ["Machine Learning", "NLP", "Computer Vision", "AI Integration"] },
-      { icon: "🎨", title: "UI/UX Design", text: "Beautiful interfaces and a seamless user experience.", tags: ["User Research", "Wireframing", "Prototyping", "Design Systems"] },
-      { icon: "🧭", title: "Technical Consulting", text: "Guidance in choosing the right technical solutions.", tags: ["Architecture Design", "Tech Stack", "Performance", "Scalability"] },
-    ],
-    toolsTitle: "Our Tools",
-    toolsSub: "The technologies we build the future with.",
-    groups: [
-      { name: "Frontend", tools: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Three.js"] },
-      { name: "Backend", tools: ["Node.js", "Python"] },
-      { name: "Blockchain", tools: ["Solidity", "Web3.js"] },
-      { name: "Tools", tools: ["Qiskit"] },
-      { name: "Design", tools: ["Figma", "UI/UX Design"] },
-    ],
-    principlesTitle: "Our Principles",
-    principlesSub: "The values that guide our team.",
-    principles: [
-      { title: "Silence & Precision", text: "We write code quietly and precisely." },
-      { title: "Transparency", text: "We believe in transparency." },
-      { title: "AI Collaboration", text: "We see AI as a teammate, not a tool." },
-    ],
-    howTitle: "How it works",
-    steps: ["Tell us your idea", "Get a quote & timeline", "We build, you review", "Launch & support"],
-    teamTitle: "The team",
-    people: [{ name: "Mahsa", role: "Developer" }, { name: "Ahmad", role: "Developer" }],
-    ctaTitle: "Have a project in mind?",
-    ctaText: "Send us a message and we'll reply within 24 hours.",
-    rights: "All rights reserved.",
-  },
-  fa: {
-    services: "خدمات", team: "تیم", contact: "تماس",
-    badge: "آماده دریافت پروژه‌های جدید",
-    h1a: "وب‌سایتی می‌سازیم که ", h1b: "نتیجه می‌دهد.",
-    lead: "مهساتک یک تیم کوچک دو نفره از توسعه‌دهندگان است. ارتباط مستقیم، تحویل سریع و بدون هزینه‌های اضافی آژانس.",
-    start: "شروع پروژه", what: "کارهای ما",
-    servicesTitle: "خدمات ما",
-    servicesSub: "از ایده تا اجرا، در کنار شما هستیم.",
-    items: [
-      { icon: "🌐", title: "توسعه وب", text: "طراحی و توسعه وب‌سایت‌های مدرن با تکنولوژی‌های روز دنیا.", tags: ["React & Next.js", "TypeScript", "Responsive Design", "SEO Optimization"] },
-      { icon: "📱", title: "اپلیکیشن موبایل", text: "ساخت اپلیکیشن‌های موبایل بومی و کراس‌پلتفرم.", tags: ["React Native", "Flutter", "iOS & Android", "PWA"] },
-      { icon: "⛓️", title: "بلاکچین", text: "توسعه قراردادهای هوشمند و پلتفرم‌های غیرمتمرکز.", tags: ["Solidity", "Web3", "Smart Contracts", "DApps"] },
-      { icon: "🤖", title: "هوش مصنوعی", text: "پیاده‌سازی راهکارهای هوش مصنوعی و یادگیری ماشین.", tags: ["Machine Learning", "NLP", "Computer Vision", "AI Integration"] },
-      { icon: "🎨", title: "طراحی UI/UX", text: "طراحی رابط کاربری زیبا و تجربه کاربری بی‌نظیر.", tags: ["User Research", "Wireframing", "Prototyping", "Design Systems"] },
-      { icon: "🧭", title: "مشاوره فنی", text: "مشاوره و راهنمایی در انتخاب بهترین راهکارهای فنی.", tags: ["Architecture Design", "Tech Stack", "Performance", "Scalability"] },
-    ],
-    toolsTitle: "ابزارهای ما",
-    toolsSub: "تکنولوژی‌هایی که با آن‌ها آینده می‌سازیم.",
-    groups: [
-      { name: "فرانت‌اند", tools: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Three.js"] },
-      { name: "بک‌اند", tools: ["Node.js", "Python"] },
-      { name: "بلاکچین", tools: ["Solidity", "Web3.js"] },
-      { name: "ابزارها", tools: ["Qiskit"] },
-      { name: "طراحی", tools: ["Figma", "UI/UX Design"] },
-    ],
-    principlesTitle: "اصول ما",
-    principlesSub: "ارزش‌هایی که جمع ما را هدایت می‌کنند.",
-    principles: [
-      { title: "سکوت و دقت", en: "Silence & Precision", text: "ما با سکوت و دقت کد می‌نویسیم." },
-      { title: "شفافیت", en: "Transparency", text: "ما به شفافیت اعتقاد داریم." },
-      { title: "همکاری با هوش مصنوعی", en: "AI Collaboration", text: "ما هوش مصنوعی را همکار می‌دانیم، نه ابزار." },
-    ],
-    howTitle: "روند کار",
-    steps: ["ایده‌تان را بگویید", "قیمت و زمان‌بندی بگیرید", "ما می‌سازیم، شما بررسی می‌کنید", "انتشار و پشتیبانی"],
-    teamTitle: "تیم ما",
-    people: [{ name: "مهسا", role: "توسعه‌دهنده" }, { name: "احمد", role: "توسعه‌دهنده" }],
-    ctaTitle: "پروژه‌ای در ذهن دارید؟",
-    ctaText: "پیام بدهید، ظرف ۲۴ ساعت پاسخ می‌دهیم.",
-    rights: "تمامی حقوق محفوظ است.",
-  },
-};
+const Github = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z" /></svg>
+);
+const Linkedin = ({ size = 16 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z" /></svg>
+);
 
-const githubs = ["https://github.com/mhkarimi78", ""];
+const serviceIcons = [Globe, Smartphone, Blocks, BrainCircuit, Palette, Compass];
+const marketingIcons = [Sparkles, Search, Share2, Rocket];
+const principleIcons = [Focus, Eye, Handshake];
+
+function Head({ i, title, sub }: { i: number; title: string; sub: string }) {
+  return (
+    <Reveal className="head">
+      <span className="eyebrow">0{i}</span>
+      <h2>{title}</h2>
+      <p className="sub">{sub}</p>
+    </Reveal>
+  );
+}
 
 export default function Home() {
   const [lang, setLang] = useState<Lang>("en");
   const [theme, setTheme] = useState<Theme>("dark");
+  const [word, setWord] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 28 });
 
   useEffect(() => {
     const d = document.documentElement;
     setLang(d.lang === "fa" ? "fa" : "en");
     setTheme(d.dataset.theme === "light" ? "light" : "dark");
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const id = setInterval(() => setWord((w) => w + 1), 2400);
+    return () => clearInterval(id);
   }, []);
 
   const toggleLang = () => {
@@ -118,113 +75,220 @@ export default function Home() {
     try { localStorage.setItem("theme", next); } catch {}
   };
 
-  const c = t[lang];
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const f = new FormData(e.currentTarget);
+    const subject = encodeURIComponent(`Project inquiry from ${f.get("name")}`);
+    const body = encodeURIComponent(`${f.get("message")}\n\n— ${f.get("name")} (${f.get("email")})`);
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+  };
+
+  const c = content[lang];
+  const locale = lang === "fa" ? "fa-IR" : "en-US";
+  const words = c.words;
+  const brand = <span>{c.brand[0]}<em>{c.brand[1]}</em></span>;
+  const marquee = c.groups.flatMap((g) => g.tools);
 
   return (
     <>
-      <header className="nav">
-        <a href="#" className="logo">{lang === "fa" ? <>مهسا<span>تک</span></> : <>Mahsa<span>Tech</span></>}</a>
-        <nav>
-          <a href="#services">{c.services}</a>
-          <a href="#tools">{c.toolsTitle}</a>
-          <a href="#team">{c.team}</a>
-          <button className="icon" onClick={toggleLang} aria-label="Switch language">{lang === "en" ? "فا" : "EN"}</button>
-          <button className="icon" onClick={toggleTheme} aria-label="Toggle theme">{theme === "dark" ? "☀" : "☾"}</button>
-          <a href="#contact" className="btn small">{c.contact}</a>
-        </nav>
+      <Background />
+      <motion.div className="progress" style={{ scaleX: progress }} />
+
+      <header className={`nav ${scrolled ? "scrolled" : ""}`}>
+        <div className="nav-in">
+          <a href="#top" className="logo"><i className="mark">M</i>{brand}</a>
+          <nav>
+            <a className="nl" href="#services">{c.nav.services}</a>
+            <a className="nl" href="#tools">{c.nav.tools}</a>
+            <a className="nl" href="#marketing">{c.nav.marketing}</a>
+            <a className="nl" href="#principles">{c.nav.principles}</a>
+            <a className="nl" href="#team">{c.nav.team}</a>
+            <button className="icon" onClick={toggleLang} aria-label="Switch language"><Languages size={16} /><span>{lang === "en" ? "فا" : "EN"}</span></button>
+            <button className="icon sq" onClick={toggleTheme} aria-label="Toggle theme">{theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}</button>
+            <a href="#contact" className="btn small">{c.nav.contact}</a>
+          </nav>
+        </div>
       </header>
 
-      <main>
+      <main id="top">
         <section className="hero">
-          <p className="badge">{c.badge}</p>
-          <h1>{c.h1a}<em>{c.h1b}</em></h1>
-          <p className="lead">{c.lead}</p>
-          <div className="actions">
-            <a href="#contact" className="btn">{c.start}</a>
-            <a href="#services" className="btn ghost">{c.what}</a>
+          <div className="hero-text">
+            <motion.p className="badge" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <i className="pulse" />{c.badge}
+            </motion.p>
+            <motion.h1 initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.1 }}>
+              <span>{c.heroPre}</span>
+              <span className="rot">
+                <AnimatePresence mode="wait">
+                  <motion.em
+                    key={`${lang}-${word % words.length}`}
+                    className="grad"
+                    initial={{ y: "70%", opacity: 0, filter: "blur(8px)" }}
+                    animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                    exit={{ y: "-70%", opacity: 0, filter: "blur(8px)" }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {words[word % words.length]}
+                  </motion.em>
+                </AnimatePresence>
+              </span>
+            </motion.h1>
+            <motion.p className="lead" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.25 }}>{c.lead}</motion.p>
+            <motion.div className="actions" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.4 }}>
+              <a href="#contact" className="btn">{c.cta1}<ArrowRight size={18} className="flip" /></a>
+              <a href="#services" className="btn ghost">{c.cta2}</a>
+            </motion.div>
           </div>
+          <motion.div className="hero-art" initial={{ opacity: 0, y: 40, scale: 0.96 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 1, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+            <CodeWindow />
+          </motion.div>
         </section>
 
+        <Reveal className="stats">
+          {c.stats.map((s) => (
+            <div className="stat" key={s.label}>
+              <b><Counter to={s.n} locale={locale} />{s.suffix}</b>
+              <span>{s.label}</span>
+            </div>
+          ))}
+        </Reveal>
+
+        <div className="marquee" aria-hidden>
+          <div className="track">
+            {[...marquee, ...marquee].map((t, i) => <span key={i}>{t}</span>)}
+          </div>
+        </div>
+
         <section id="services" className="section">
-          <h2>{c.servicesTitle}</h2>
-          <p className="sub">{c.servicesSub}</p>
+          <Head i={1} title={c.servicesTitle} sub={c.servicesSub} />
           <div className="grid">
-            {c.items.map((s) => (
-              <div className="card" key={s.title}>
-                <div className="ico">{s.icon}</div>
-                <h3>{s.title}</h3>
-                <p>{s.text}</p>
-                <ul className="tags">
-                  {s.tags.map((tag) => <li key={tag} dir="ltr">{tag}</li>)}
-                </ul>
-              </div>
-            ))}
+            {c.items.map((s, i) => {
+              const Icon = serviceIcons[i];
+              return (
+                <Reveal key={s.title} delay={(i % 3) * 0.1}>
+                  <SpotlightCard className="card">
+                    <div className="ico"><Icon size={22} /></div>
+                    <h3>{s.title}</h3>
+                    <p>{s.text}</p>
+                    <ul className="tags">{s.tags.map((t) => <li key={t} dir="ltr">{t}</li>)}</ul>
+                  </SpotlightCard>
+                </Reveal>
+              );
+            })}
           </div>
         </section>
 
         <section id="tools" className="section">
-          <h2>{c.toolsTitle}</h2>
-          <p className="sub">{c.toolsSub}</p>
-          <div className="groups">
-            {c.groups.map((g) => (
-              <div key={g.name} className="group">
-                <h3>{g.name}</h3>
-                <ul className="tags">
-                  {g.tools.map((tool) => <li key={tool} dir="ltr">{tool}</li>)}
-                </ul>
-              </div>
+          <Head i={2} title={c.toolsTitle} sub={c.toolsSub} />
+          <div className="tgrid">
+            {c.groups.map((g, i) => (
+              <Reveal key={g.name} delay={(i % 4) * 0.07} className={i === 0 ? "wide" : ""}>
+                <SpotlightCard className="card tcard">
+                  <h3><i />{g.name}</h3>
+                  <ul className="tags">{g.tools.map((t) => <li key={t} dir="ltr">{t}</li>)}</ul>
+                </SpotlightCard>
+              </Reveal>
             ))}
+          </div>
+        </section>
+
+        <section id="marketing" className="section">
+          <Head i={3} title={c.marketingTitle} sub={c.marketingSub} />
+          <div className="grid four">
+            {c.marketing.map((m, i) => {
+              const Icon = marketingIcons[i];
+              return (
+                <Reveal key={m.title} delay={i * 0.08}>
+                  <SpotlightCard className="card">
+                    <div className="ico"><Icon size={22} /></div>
+                    <h3>{m.title}</h3>
+                    <p>{m.text}</p>
+                  </SpotlightCard>
+                </Reveal>
+              );
+            })}
           </div>
         </section>
 
         <section id="principles" className="section">
-          <h2>{c.principlesTitle}</h2>
-          <p className="sub">{c.principlesSub}</p>
+          <Head i={4} title={c.principlesTitle} sub={c.principlesSub} />
           <div className="grid">
-            {c.principles.map((p, i) => (
-              <div className="card" key={i}>
-                <div className="ico">{["🤫", "🔍", "🤝"][i]}</div>
-                <h3>{p.title}</h3>
-                {"en" in p && <span className="alt" dir="ltr">{p.en}</span>}
-                <p>{p.text}</p>
-              </div>
-            ))}
+            {c.principles.map((p, i) => {
+              const Icon = principleIcons[i];
+              return (
+                <Reveal key={p.title} delay={i * 0.1}>
+                  <SpotlightCard className="card">
+                    <div className="ico"><Icon size={22} /></div>
+                    <h3>{p.title}</h3>
+                    {p.alt && <span className="alt" dir="ltr">{p.alt}</span>}
+                    <p>{p.text}</p>
+                  </SpotlightCard>
+                </Reveal>
+              );
+            })}
           </div>
         </section>
 
-        <section className="section">
-          <h2>{c.howTitle}</h2>
-          <ol className="steps">
+        <section id="process" className="section">
+          <Head i={5} title={c.processTitle} sub={c.processSub} />
+          <div className="steps">
             {c.steps.map((s, i) => (
-              <li key={s}><b>{lang === "fa" ? ["۱", "۲", "۳", "۴"][i] : i + 1}</b>{s}</li>
+              <Reveal key={s.title} delay={i * 0.12} className="step">
+                <b>{(i + 1).toLocaleString(locale)}</b>
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+              </Reveal>
             ))}
-          </ol>
+          </div>
         </section>
 
         <section id="team" className="section">
-          <h2>{c.teamTitle}</h2>
-          <div className="grid two">
+          <Head i={6} title={c.teamTitle} sub={c.teamSub} />
+          <div className="grid">
             {c.people.map((m, i) => (
-              <div className="card person" key={i}>
-                <div className="avatar">{m.name[0]}</div>
-                <div>
-                  <h3>{m.name}</h3>
-                  <p>{m.role}</p>
-                  {githubs[i] && <a href={githubs[i]} target="_blank" rel="noreferrer">GitHub ↗</a>}
-                </div>
-              </div>
+              <Reveal key={i} delay={i * 0.12}>
+                <SpotlightCard className="card person">
+                  <div className="avatar"><span>{m.name[0]}</span></div>
+                  <div>
+                    <h3>{m.name}</h3>
+                    <p>{m.role}</p>
+                    {(m.github || m.linkedin) && (
+                      <div className="socials">
+                        {m.github && <a className="soc" href={m.github} target="_blank" rel="noreferrer"><Github size={16} />GitHub<ArrowUpRight size={13} /></a>}
+                        {m.linkedin && <a className="soc" href={m.linkedin} target="_blank" rel="noreferrer"><Linkedin size={16} />LinkedIn<ArrowUpRight size={13} /></a>}
+                      </div>
+                    )}
+                  </div>
+                </SpotlightCard>
+              </Reveal>
             ))}
           </div>
         </section>
 
-        <section id="contact" className="section cta">
-          <h2>{c.ctaTitle}</h2>
-          <p>{c.ctaText}</p>
-          <a className="btn" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+        <section id="contact" className="section">
+          <Reveal>
+            <div className="cta">
+              <div className="cta-text">
+                <h2>{c.ctaTitle}</h2>
+                <p>{c.ctaText}</p>
+                <a className="link big" href={`mailto:${CONTACT_EMAIL}`}><Mail size={18} />{CONTACT_EMAIL}</a>
+              </div>
+              <form onSubmit={onSubmit} className="form">
+                <input name="name" required placeholder={c.form.name} />
+                <input name="email" type="email" required placeholder={c.form.email} />
+                <textarea name="message" required rows={4} placeholder={c.form.message} />
+                <button className="btn" type="submit">{c.form.send}<ArrowRight size={18} className="flip" /></button>
+                <small>{c.form.hint}</small>
+              </form>
+            </div>
+          </Reveal>
         </section>
       </main>
 
-      <footer>© {new Date().getFullYear()} {lang === "fa" ? "مهساتک" : "MahsaTech"}. {c.rights}</footer>
+      <footer>
+        <a href="#top" className="logo"><i className="mark">M</i>{brand}</a>
+        <span>© {new Date().getFullYear()} {c.brand.join("")}. {c.rights}</span>
+      </footer>
     </>
   );
 }
