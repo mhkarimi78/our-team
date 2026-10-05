@@ -147,7 +147,7 @@ export default function Home() {
         <Reveal className="stats">
           {c.stats.map((s) => (
             <div className="stat" key={s.label}>
-              <b><Counter to={s.n} locale={locale} />{s.suffix}</b>
+              <b dir={s.suffix === "+" ? "ltr" : undefined}><Counter to={s.n} locale={locale} /><small>{s.suffix}</small></b>
               <span>{s.label}</span>
             </div>
           ))}
